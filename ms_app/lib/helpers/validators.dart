@@ -1,0 +1,1 @@
+//giriş doğrulama için yardımcı fonksiyonlar

@@ -1,0 +1,1 @@
+//kullanıcı bilgilerini temsil eder
