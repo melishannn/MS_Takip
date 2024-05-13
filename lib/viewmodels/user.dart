@@ -1,0 +1,1 @@
+// İş mantığına özgü kullanıcı modeli.

@@ -1,0 +1,1 @@
+//Randevu bilgilerini temsil eder

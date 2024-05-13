@@ -1,0 +1,1 @@
+//uygulama genelinde kullanılcak sabitler
