@@ -1,6 +1,7 @@
-// ignore_for_file: prefer_const_constructors
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ms_app/services/auth_service.dart';
+import 'package:ms_app/views/screens/login.dart';
+import 'package:provider/provider.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -12,84 +13,163 @@ class SignUpPage extends StatefulWidget {
 class SignUpPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance; // FirebaseAuth instance
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  bool _obscureText = true;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     super.dispose();
   }
 
- Future<void> _register() async {
-  try {
-    // Create a new user with the entered email and password
-    UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-    );
+  Future<void> _register() async {
+    try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      var userCredential = await authService.registerWithEmailAndPassword(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+        _firstNameController.text.trim(),
+        _lastNameController.text.trim(),
+      );
 
-    // Check if the widget is still mounted before proceeding
-    if (!mounted) return;
+      if (!mounted) return;
 
-    // If the user is successfully created
-    if (userCredential.user != null) {
-      Navigator.pushReplacementNamed(context, '/login'); // Navigate to home page or another relevant page
-    }
-  } catch (e) {
-    // Check if the widget is still mounted before showing a dialog
-    if (!mounted) return;
+      if (userCredential.user != null) {
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (Route<dynamic> route) => false,
+          );
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
 
-    // If there is any error, display an error message in a dialog
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Registration Error'),
-        content: Text(e.toString()),
-        actions: <Widget>[
-          TextButton(
-            child: Text('OK'),
-            onPressed: () {
-              // Ensure to check again because the dialog might take time to handle events
-              if (mounted) {
-                Navigator.of(context).pop();
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  } 
-}
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Kayıt Hatası'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Tamam'),
+              onPressed: () {
+                if (mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        ),
+      );
+    } 
+  }
 
+  void _toggleVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    Color topColor = const Color(0xFFb2dfdb);
+    Color bottomColor = const Color(0xFF80cbc4);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign Up'),
+        title: const Text('Kayıt Ol'),
+        backgroundColor: topColor,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [topColor, Colors.white],
             ),
-            SizedBox(height: 20),
-            TextFormField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextFormField(
+                    controller: _firstNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Ad',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person, color: Colors.black),
+                      fillColor: Colors.white24,
+                      filled: true,
+                    ),
+                    keyboardType: TextInputType.name,
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _lastNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Soyad',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person, color: Colors.black),
+                      fillColor: Colors.white24,
+                      filled: true,
+                    ),
+                    keyboardType: TextInputType.name,
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'E-posta',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email, color: Colors.black),
+                      fillColor: Colors.white24,
+                      filled: true,
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Şifre',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.lock, color: Colors.black),
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility, color: Colors.black),
+                        onPressed: _toggleVisibility,
+                      ),
+                      fillColor: Colors.white24,
+                      filled: true,
+                    ),
+                    obscureText: _obscureText,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _register,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: bottomColor,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.3, vertical: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const Text('Kayıt Ol'),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: _register,
-              child: Text('Register'),
-            ),
-          ],
+          ),
         ),
       ),
     );

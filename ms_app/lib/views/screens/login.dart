@@ -1,7 +1,6 @@
-// ignore_for_file: prefer_const_constructors
-
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Added Firebase Auth import
 import 'package:flutter/material.dart';
+import 'package:ms_app/views/screens/forgot_password.dart'; // ForgotPasswordPage import
 import 'package:ms_app/views/screens/home_page.dart';
 import 'package:ms_app/views/screens/register.dart';
 
@@ -13,10 +12,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _obscureText = true; // Şifre görünürlüğü için eklendi
 
   @override
   void dispose() {
@@ -26,41 +25,46 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _login() async {
-  if (_formKey.currentState!.validate()) {
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) =>  HomePage()),
+    if (_formKey.currentState!.validate()) {
+      try {
+        final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
         );
-      }
-    } on FirebaseAuthException catch (e) {
-      String message = 'An error occurred. Please try again later.';
-      if (e.code == 'user-not-found') {
-        message = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Wrong password provided for that user.';
-      }
 
-      if (mounted) { // Check if the widget is still in the widget tree
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        if (mounted) {
+          // Giriş yapan kullanıcının bilgilerini alın
+          User? user = userCredential.user;
+          if (user != null) {
+            print('Giriş yapan kullanıcı: ${user.email}');
+          }
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        }
+      } catch (e) {
+        String message = 'Bir hata oluştu. Lütfen daha sonra tekrar deneyin.';
+        if (e.toString().contains('user-not-found')) {
+          message = 'Bu e-posta ile kayıtlı kullanıcı bulunamadı.';
+        } else if (e.toString().contains('wrong-password')) {
+          message = 'Yanlış şifre girildi.';
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        }
       }
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
-     Color topColor = Color(0xFFb2dfdb);  // A lighter green-blue shade
-     Color bottomColor = Color(0xFF80cbc4);  // A deeper green-blue shade
+    Color topColor = const Color(0xFFb2dfdb); // Açık yeşil-mavi ton
+    Color bottomColor = const Color(0xFF80cbc4); // Koyu yeşil-mavi ton
 
     return Scaffold(
       appBar: AppBar(
@@ -68,101 +72,123 @@ class _LoginPageState extends State<LoginPage> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors:  [topColor, bottomColor],
+        child: SingleChildScrollView(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [topColor, bottomColor],
+              ),
             ),
-          ),
-          child: SingleChildScrollView(
-            padding:  EdgeInsets.all(30.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                   SizedBox(height: 40),
+            padding: const EdgeInsets.all(30.0),
+            child: Center(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 40),
                     Image.asset(
-                        'assets/images/image.png',
-                        width: 100,  // You can adjust the width as necessary
-                        height: 100, // You can adjust the height as necessary
-                        fit: BoxFit.contain, // This ensures the image maintains its aspect ratio
-                      ),                   
-                    SizedBox(height: 40),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon:  Icon(Icons.email, color: Colors.white),
-                      fillColor: Colors.white24,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
+                      'assets/images/image.png',
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 40),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'E-posta',
+                        prefixIcon: const Icon(Icons.email, color: Colors.white),
+                        fillColor: Colors.white24,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty || !value.contains('@')) {
+                          return 'Geçerli bir e-posta adresi girin.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: _obscureText,
+                      decoration: InputDecoration(
+                        labelText: 'Şifre',
+                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
+                        suffixIcon: IconButton(
+                          icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility, color: Colors.white),
+                          onPressed: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                        ),
+                        fillColor: Colors.white24,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty || value.length < 6) {
+                          return 'Şifre en az 6 karakter olmalıdır.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: bottomColor,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      ),
+                      child: const Text('Giriş Yap'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SignUpPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Hesabınız yok mu? Kayıt Olun",
+                        style: TextStyle(color: Colors.white70),
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty || !value.contains('@')) {
-                        return 'Please enter a valid email address.';
-                      }
-                      return null;
-                    },
-                  ),
-                   SizedBox(height: 20),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Şifre',
-                      prefixIcon: Icon(Icons.lock_outline, color: Colors.white),
-                      fillColor: Colors.white24,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Şifrenizi mi unuttunuz?",
+                        style: TextStyle(color: Colors.white70),
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value.length < 6) {
-                        return 'Password must be at least 6 characters long.';
-                      }
-                      return null;
-                    },
-                  ),
-                   SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: _login,
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: bottomColor, backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding:  EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                    ),
-                    child: Text('Giriş Yap')
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) =>  SignUpPage()),
-                      );
-                    },
-                    child:
-                     Text(
-                      "Hesabınız yok mu? Kayıt ol",
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    backgroundColor: bottomColor,
+      backgroundColor: bottomColor,
     );
   }
 }

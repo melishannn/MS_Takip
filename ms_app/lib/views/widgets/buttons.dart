@@ -2,13 +2,17 @@
 import 'package:flutter/material.dart';
 
 class Buttons extends StatelessWidget {
-  final VoidCallback onEditPressed;
-  final VoidCallback onCancelPressed;
+  final VoidCallback? onEditPressed;
+  final VoidCallback? onCancelPressed;
+  final VoidCallback? onSavePressed;
+  final VoidCallback? onLogoutPressed;
 
   const Buttons({
     Key? key,
-    required this.onEditPressed,
-    required this.onCancelPressed,
+    this.onEditPressed,
+    this.onCancelPressed,
+    this.onSavePressed,
+    this.onLogoutPressed,
   }) : super(key: key);
 
   @override
@@ -19,36 +23,80 @@ class Buttons extends StatelessWidget {
 
     return Column(
       children: [
-        ElevatedButton(
-          onPressed: onEditPressed,
-          style: ElevatedButton.styleFrom(
-            foregroundColor: colorScheme.onPrimary, backgroundColor: colorScheme.primary, // Temadan birincil üzerine rengi kullan
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12), // Yuvarlak köşeler
+        if (onEditPressed != null)
+          ElevatedButton(
+            onPressed: onEditPressed,
+            style: ElevatedButton.styleFrom(
+              foregroundColor: colorScheme.onPrimary, 
+              backgroundColor: colorScheme.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          ),
-          child: Text(
-            'Randevuyu Düzenle',
-            style: textTheme.labelLarge?.copyWith(color: colorScheme.onPrimary), // Temadan button stilini kullan
-          ),
-        ),
-        const SizedBox(height: 8), // Butonlar arası boşluk
-        ElevatedButton(
-          onPressed: onCancelPressed,
-          style: ElevatedButton.styleFrom(
-            foregroundColor: colorScheme.onError, backgroundColor: colorScheme.error, // Hata/iptal üzerine rengi kullan
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12), // Yuvarlak köşeler
+            child: Text(
+              'Randevuyu Düzenle',
+              style: textTheme.labelLarge?.copyWith(color: colorScheme.onPrimary),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           ),
-          child: Text(
-            'Randevuyu İptal Et',
-            style: textTheme.labelLarge?.copyWith(color: colorScheme.onError), // Temadan button stilini kullan
+        const SizedBox(height: 8),
+        if (onCancelPressed != null)
+          ElevatedButton(
+            onPressed: onCancelPressed,
+            style: ElevatedButton.styleFrom(
+              foregroundColor: colorScheme.onError, 
+              backgroundColor: colorScheme.error,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
+            child: Text(
+              'Randevuyu İptal Et',
+              style: textTheme.labelLarge?.copyWith(color: colorScheme.onError),
+            ),
           ),
-        ),
+          //Kaydet butonu
+        if (onSavePressed != null)
+          ElevatedButton(
+            onPressed: onSavePressed,
+            style: ElevatedButton.styleFrom(
+              foregroundColor: colorScheme.onSecondary, 
+              backgroundColor: colorScheme.secondaryContainer,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              elevation: 10,
+              shadowColor: colorScheme.shadow,
+            ),
+            child: Text(
+              'Bilgileri Kaydet',
+              style: textTheme.titleMedium?.copyWith(color: colorScheme.onSecondary),
+            ),
+          ),
+        const SizedBox(height: 16),
+        //çıkış yap butonu
+        if (onLogoutPressed != null)
+          ElevatedButton(
+            onPressed: onLogoutPressed,
+            style: ElevatedButton.styleFrom(
+              foregroundColor: colorScheme.onError, 
+              backgroundColor: colorScheme.errorContainer,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              elevation: 10,
+              shadowColor: colorScheme.shadow,
+            ),
+            child: Text(
+              'Çıkış Yap',
+              style: textTheme.titleMedium?.copyWith(color: colorScheme.onError),
+            ),
+          ),
       ],
     );
   }
 }
+

@@ -20,25 +20,27 @@ ThemeData buildThemeData() {
 
   // Renk şemasını tanımlama
   ColorScheme colorScheme = const ColorScheme(
-    primary: Colors.blueAccent, // Birincil renk varyantı
-    secondary: Colors.cyanAccent, // İkincil renk varyantı
-    surface: Colors.white, // Yüzey rengi
-    background: Colors.white, // Arka plan rengi
-    error: Colors.redAccent, // Hata rengi
-    onPrimary: Colors.white, // Birincil rengin üzerine gelen metin/ikonlar için renk
-    onSecondary: Colors.black, // İkincil rengin üzerine gelen metin/ikonlar için renk
-    onSurface: Colors.black, // Yüzeyin üzerine gelen metin/ikonlar için renk
-    onBackground: Colors.black, // Arka planın üzerine gelen metin/ikonlar için renk
-    onError: Colors.white, // Hata renginin üzerine gelen metin/ikonlar için renk
-    brightness: Brightness.light, // Tema parlaklığı
+    primary: Color(0xff006a6a),
+    primaryContainer: Color(0xff9cf1f0),
+    secondary: Color(0xff006a69),
+    secondaryContainer: Color(0xff9cf1ef),
+    surface: Color(0xfff4fbfa),
+    background: Color(0xfff4fbfa),
+    error: Color(0xffba1a1a),
+    onError: Color(0xffffffff),
+    onPrimary: Color(0xffffffff),
+    onSecondary: Color(0xffffffff),
+    onSurface: Color(0xff161d1d),
+    onBackground: Color(0xff161d1d),
+    brightness: Brightness.light,
   );
 
   return ThemeData(
     textTheme: textTheme,
-    primaryColor: Colors.blueAccent,
+    primaryColor: const Color(0xff006a6a),
     colorScheme: colorScheme,
     buttonTheme: const ButtonThemeData(
-      buttonColor: Colors.blueAccent, // Butonların varsayılan arka plan rengi
+      buttonColor: Color(0xff006a6a), // Butonların varsayılan arka plan rengi
       textTheme: ButtonTextTheme.primary, // Buton metin temaları için stil
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(

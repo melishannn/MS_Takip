@@ -1,2 +1,0 @@
-//Randevu yönetimi servisi.
-

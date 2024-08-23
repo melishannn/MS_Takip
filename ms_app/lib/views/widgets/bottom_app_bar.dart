@@ -1,62 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:ms_app/views/screens/doctor_lists.dart';
+import 'package:ms_app/views/screens/home_page.dart';
+import 'package:ms_app/views/screens/notification_screen.dart'; // Bildirim ekranını ekleyin
 import 'package:ms_app/views/screens/profile_page.dart';
-
+import 'package:ms_app/views/theme/theme_data.dart';
 
 class HealthBottomAppBar extends StatelessWidget {
   const HealthBottomAppBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    buildThemeData(); // Use the buildThemeData method to get the theme data
+
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
       notchMargin: 6.0,
-      color: Theme.of(context).colorScheme.background,
       child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround, // Daha iyi hizalama için 'spaceEvenly' yerine 'spaceAround' kullanıldı
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-        /*  IconButton(
-            icon: Icon(Icons.local_hospital, color: Theme.of(context).colorScheme.primary),
-            onPressed: () {
-              // Tanımlanmış MS merkezleri olan adresler
-            },
-          ),*/
           IconButton(
-            icon: Icon(Icons.notifications, color: Theme.of(context).colorScheme.primary),
+            icon: const Icon(Icons.home),
             onPressed: () {
-              // gönderilen randevu hatırlatmaları
-            },
-          ),
-        /*  IconButton(
-            icon: Icon(Icons.medical_services, color: Theme.of(context).colorScheme.secondary),
-            onPressed: () {
-              // Şu an kullanılan ilaç hakkında bilgiler
-              //ilaçlar hakkında bilgi verilmiyor
-            },
-          ),*/ 
-          IconButton(
-            icon: Icon(Icons.person_search, color: Theme.of(context).colorScheme.primary),
-            onPressed: () {
-              // MS doktorlarının bulunduğu liste
-               Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const DoctorListPage()),
-            );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HomePage()),
+              );
             },
           ),
           IconButton(
-          icon: Icon(Icons.account_circle, color: Theme.of(context).colorScheme.primary),
-          onPressed: () {
-            // Navigate to ProfilePage
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
-            );
-          },
-        ),
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NotificationScreen()), // Bildirim ekranına yönlendir
+              );
+            },
+          ),
+        
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
+          ),
         ],
       ),
     );
   }
+
+ 
 }
